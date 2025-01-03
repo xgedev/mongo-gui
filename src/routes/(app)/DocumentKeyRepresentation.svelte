@@ -1,6 +1,7 @@
 <script>
  import DocumentKeyRepresentation from "./DocumentKeyRepresentation.svelte";
  import { writable } from "svelte/store";
+ import { modalData, openModal } from "$lib/modal.js";
 
  let { document, key, indent = 1 } = $props();
 
@@ -9,7 +10,15 @@
  let expand = $state(false);
 
  function handleValueClick() {
-  prompt("Value", JSON.stringify(document[key], null, 2));
+  openModal({
+   value: document[key],
+  }, async (code) => {
+   if (code === 0) { // abort
+    return true;
+   } else if (code === 1) { // store TODO
+    let response = await fetch(`/api/v1/database/`);
+   }
+  });
  }
 </script>
 

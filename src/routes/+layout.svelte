@@ -1,9 +1,14 @@
 <script>
 	import "../app.css";
+ import Modal from "$lib/Modal.svelte";
+ import { modalData } from "$lib/modal.js";
 
 	let { children } = $props();
 </script>
 
+{#if $modalData}
+ <Modal />
+{/if}
 <main>
  {@render children()}
 </main>

@@ -5,9 +5,11 @@
  import DocumentKeyRepresentation from "./DocumentKeyRepresentation.svelte";
 
  let expandedDocumentIndexes = $state([]);
+ let tabsElem;
+ let tabsElemHeight = $state(0);
 
  beforeNavigate(({ cancel }) => {
-  if (queryRunning) return cancel();
+  if ($queryRunning) return cancel();
  });
 
  function closeTabId(tabId) {
@@ -104,7 +106,7 @@
 </svelte:head>
 
 <div class="wrapper" style="--sidebar-width: {$sidebarWidth}px;">
- <div class="tabs">
+ <div class="tabs" bind:clientHeight={tabsElemHeight}>
   {#each $openCollections as tab}
    {@const selected = tab.id === $selectedOpenCollectionId}
    <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -120,7 +122,7 @@
  </div>
  {#if $openCollections.find(col => col.id === $selectedOpenCollectionId)}
   {@const collection = $openCollections.find(col => col.id === $selectedOpenCollectionId)}
-  <div class="collection-container">
+  <div class="collection-container" style="--tabs-elem-height: {tabsElemHeight}px;">
    <div class="input-wrapper">
     <div class="label">Query</div>
     <textarea class="input" value={collection.query} oninput={(e) => handleNewQuery(e.target.value)}></textarea>
@@ -243,6 +245,7 @@
   flex-direction: column;
   gap: 1em;
   padding: 1em;
+  height: calc(100% - var(--tabs-elem-height) - 5px);
  }
 
  div.collection-container div.divider {
@@ -303,6 +306,8 @@
   flex-direction: column;
   font-size: 1.1em;
   gap: .2em;
+  overflow-y: auto;
+  height: 100%;
  }
 
  div.collection-container div.documents * {
