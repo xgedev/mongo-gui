@@ -103,6 +103,10 @@
   font-size: .9em;
  }
 
+ div.wrapper:hover {
+  background: rgba(255, 255, 255, .05);
+ }
+
  div.wrapper * {
   font-family: monospace;
  }
