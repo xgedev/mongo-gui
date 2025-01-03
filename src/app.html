@@ -4,6 +4,19 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="/js/svg-inject.min.js"></script>
+  <script>
+   SVGInject.setOptions({
+    afterInject(img, svg) {
+     let imgFill = img.attributes.getNamedItem("fill")?.value;
+     if (svg.children && imgFill) {
+      for (let i = 0; i < svg.children.length; i++) {
+       svg.children[i].setAttribute("fill", imgFill);
+      }
+     }
+    }
+   })
+  </script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

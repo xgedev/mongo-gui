@@ -2,10 +2,11 @@
  import { onMount } from "svelte";
  import { page } from "$app/stores";
  import { goto } from "$app/navigation";
- import { databases } from "$lib/stores";
+ import { sidebarWidth, databases, openCollections, selectedOpenCollectionId } from "$lib/stores";
  import IconText from "$lib/logos/IconText.svelte";
 
  let username = $state("...");
+ let resizeEnabled = false;
 
  onMount(async () => {
   if (!await fetchUsername()) return;
@@ -43,7 +44,7 @@
   let db = $databases.find(db => db.database === databaseName);
   if (!db) return;
   if (db.state === 2) { // connected
-   $databases.set($databases.map(db => {
+   databases.set($databases.map(db => {
     if (db.database === databaseName) {
      return ({
       ...db,
@@ -53,6 +54,7 @@
     }
     return db;
    }));
+   openCollections.set($openCollections.filter(col => col.database !== databaseName));
    return;
   } else if (db.state === 1) { // connecting
    return;
@@ -94,9 +96,43 @@
    }
   }
  }
+
+ async function handleCollectionClick(databaseName, collectionName) {
+  let foundOpen = $openCollections.find(col => col.database === databaseName && col.collection === collectionName);
+  if (!foundOpen) {
+   foundOpen = {
+    id: Date.now() + Math.random()*1000000,
+    database: databaseName,
+    collection: collectionName,
+    query: "{}",
+    projection: "{}",
+    limit: 1,
+    documents: [],
+   };
+   $openCollections = [...$openCollections, foundOpen];
+  }
+  $selectedOpenCollectionId = foundOpen.id;
+ }
+
+ function enableResize(event) {
+  resizeEnabled = {
+   widthBefore: parseInt(`${$sidebarWidth}`),
+   mouseX: event.x,
+  };
+ }
+
+ function adjustResize(event) {
+  if (!resizeEnabled) return;
+  $sidebarWidth = Math.max(160, Math.min(450, resizeEnabled.widthBefore + event.x - resizeEnabled.mouseX));
+ }
+
+ function disableResize() {
+  resizeEnabled = false;
+ }
 </script>
 
-<nav>
+<svelte:window onpointermove={adjustResize} onpointerup={disableResize} />
+<nav style="--width: {$sidebarWidth}px;">
  <div class="logo">
   <IconText />
  </div>
@@ -118,8 +154,9 @@
     {#if db.state === 2}
      <div class="collections">
       {#each db.collections as collection}
-       <button class="collection">
-        <img src="/assets/icons/collection.svg" alt="collection" class="icon">
+       {@const open = $openCollections.some(col => col.collection === collection)}
+       <button class="collection {open ? "active" : ""}" onclick={() => handleCollectionClick(db.database, collection)}>
+        <img src="/assets/icons/collection.svg" alt="collection" onload={SVGInject(this)} class="sidebar-col-icon">
         <div class="name">{collection}</div>
        </button>
       {/each}
@@ -135,6 +172,7 @@
   <div class="label">Logged in as</div>
   {username}
  </div>
+ <button aria-label="resize" class="resize-bar" onpointerdown={enableResize}></button>
 </nav>
 
 <style>
@@ -143,11 +181,25 @@
   display: flex;
   align-items: center;
   gap: 1em;
-  width: 250px;
+  width: var(--width);
   flex-direction: column;
   height: 100vh;
   border-right: 1px solid rgba(255, 255, 255, .05);
   background: rgba(255, 255, 255, .01);
+  overflow: hidden;
+ }
+
+ button.resize-bar {
+  position: fixed;
+  left: calc(var(--width) - 1px);
+  width: 4px;
+  height: 100%;
+  opacity: 0;
+  cursor: ew-resize
+ }
+
+ button.resize-bar:hover {
+  opacity: 1;
  }
 
  div.logo {
@@ -163,6 +215,7 @@
   flex-direction: column;
   width: 100%;
   gap: .7em;
+  overflow: auto;
  }
 
  div.database {
@@ -177,6 +230,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   width: 100%;
  }
 
@@ -201,17 +255,36 @@
   gap: .5em;
   padding: .4em 0;
   padding-left: .5em;
-  cursor: pointer;
   text-align: start;
   background: none;
+  max-width: 100%;
+  cursor: default;
  }
  div.database button.collection:hover {
   background: rgba(255, 255, 255, .05);
  }
 
- div.database button.collection img.icon {
+ div.database button.collection.active {
+  background: color-mix(in srgb, var(--clr-primary) 40%, transparent);
+ }
+ div.database button.collection.active:hover {
+  opacity: .85;
+ }
+
+ div.database button.collection div.name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+ }
+
+ :global(div.database button.collection svg.sidebar-col-icon) {
   width: 1em;
   opacity: .8;
+ }
+
+ :global(div.database button.collection.active svg.sidebar-col-icon) {
+  fill: color-mix(in srgb, var(--clr-primary) 80%, #fff);
+  stroke: color-mix(in srgb, var(--clr-primary) 80%, #fff);
  }
 
  div.databases div.divider {
