@@ -62,7 +62,7 @@
   expandedDocumentIndexes = [];
   let currentCollection = $openCollections.find(col => col.id === $selectedOpenCollectionId);
   try {
-   let response = await fetch(`/api/v1/database/${currentCollection.database}/run-query`, {
+   let response = await fetch(`/api/v1/databases/${currentCollection.database}/run-query`, {
     method: "POST",
     headers: {
      "Content-Type": "application/json",
@@ -161,7 +161,7 @@
        </div>
        {#if isOpen}
         {#each Object.keys(document) as key}
-         <DocumentKeyRepresentation {document} {key} />
+         <DocumentKeyRepresentation {document} {key} tree={[]} />
         {/each}
        {/if}
       </div>

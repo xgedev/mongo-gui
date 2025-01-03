@@ -68,7 +68,7 @@
     }
     return db;
    }));
-   let response = await fetch(`/api/v1/database/${databaseName}/collection-list`);
+   let response = await fetch(`/api/v1/databases/${databaseName}/collection-list`);
    if (response.ok) {
     let collections = await response.json();
     databases.set($databases.map(db => {

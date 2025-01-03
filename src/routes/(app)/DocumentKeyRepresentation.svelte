@@ -3,7 +3,7 @@
  import { writable } from "svelte/store";
  import { modalData, openModal } from "$lib/modal.js";
 
- let { document, key, indent = 1 } = $props();
+ let { document, key, tree = [], indent = 1 } = $props();
 
  let isValueObj = typeof document[key] === "object";
  let isValueArr = Array.isArray(document[key]);
@@ -15,8 +15,9 @@
   }, async (code) => {
    if (code === 0) { // abort
     return true;
-   } else if (code === 1) { // store TODO
-    let response = await fetch(`/api/v1/database/`);
+   } else if (code === 1) { // store
+    let treeToUpdate = [...tree, key].join("."); // ex.: config.roleIds.0
+    let response = await fetch(`/api/v1/databases/`);
    }
   });
  }
@@ -39,7 +40,7 @@
 </div>
 {#if expand}
  {#each Object.keys(document[key]) as key2}
-  <DocumentKeyRepresentation document={document[key]} key={key2} indent={indent + 1} />
+  <DocumentKeyRepresentation document={document[key]} key={key2} tree={[...tree, key]} indent={indent + 1} />
  {/each}
 {/if}
 
@@ -67,6 +68,11 @@
 
  .column.value {
   padding-left: .5em;
+ }
+
+ .column.value:hover {
+  background: rgba(255, 255, 255, .03);
+  box-shadow: inset 0 0 0 1px var(--clr-primary);
  }
  
  button.column {
