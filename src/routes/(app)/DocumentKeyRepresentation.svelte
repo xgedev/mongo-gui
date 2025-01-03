@@ -1,9 +1,10 @@
 <script>
  import DocumentKeyRepresentation from "./DocumentKeyRepresentation.svelte";
  import { writable } from "svelte/store";
+ import { openCollections, selectedOpenCollectionId } from "$lib/stores";
  import { modalData, openModal } from "$lib/modal.js";
 
- let { document, key, tree = [], indent = 1 } = $props();
+ let { document, key, _id, tree = [], indent = 1 } = $props();
 
  let isValueObj = typeof document[key] === "object";
  let isValueArr = Array.isArray(document[key]);
@@ -16,8 +17,60 @@
    if (code === 0) { // abort
     return true;
    } else if (code === 1) { // store
+    if (!_id) {
+     alert("No _id found - cannot update document");
+     return false;
+    }
     let treeToUpdate = [...tree, key].join("."); // ex.: config.roleIds.0
-    let response = await fetch(`/api/v1/databases/`);
+    let openCollection = $openCollections.find(col => col.id === $selectedOpenCollectionId);
+    let response = await fetch(`/api/v1/databases/${openCollection.database}/run-update-one`, {
+     method: "PATCH",
+     headers: {
+      "Content-Type": "application/json",
+     },
+     body: JSON.stringify({
+      collection: openCollection.collection,
+      _id,
+      query: {
+       $set: {
+        [treeToUpdate]: $modalData.value,
+       }
+      }
+     }),
+    });
+    if (response.ok) {
+     openCollections.update(collections => collections.map(col => {
+      if (col.id === $selectedOpenCollectionId) {
+       return {
+        ...col,
+        documents: col.documents.map(doc => {
+         if (doc._id === _id) {
+          return doTreeUpdate(doc, [...tree, key], $modalData.value);
+         }
+         return doc;
+        }),
+       };
+      }
+      return col;
+     }));
+     function doTreeUpdate(doc, tree, value) {
+      if (tree.length === 1) {
+       return {
+        ...doc,
+        [tree[0]]: value,
+       }
+      } else {
+       return {
+        ...doc,
+        [tree[0]]: doTreeUpdate(doc[tree[0]], tree.slice(1), value),
+       }
+      }
+     }
+     return true;
+    }
+    let error = await response.text();
+    alert("Failed to update document: " + error);
+    return false;
    }
   });
  }
@@ -40,7 +93,7 @@
 </div>
 {#if expand}
  {#each Object.keys(document[key]) as key2}
-  <DocumentKeyRepresentation document={document[key]} key={key2} tree={[...tree, key]} indent={indent + 1} />
+  <DocumentKeyRepresentation document={document[key]} key={key2} {_id} tree={[...tree, key]} indent={indent + 1} />
  {/each}
 {/if}
 
