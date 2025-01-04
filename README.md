@@ -4,6 +4,8 @@ A simple web app to browse through and query MongoDB databases.
 
 With user access management.
 
+> I built this app to be able to more easily manage access of certain users to the database. Because it now does almost the same as other MongoDB explorers, I just use is as a simple explorer myself. Feel free to contribute to it if you think it is missing something :)
+
 ### Features
 - Browse through databases, collections, and documents
 - Expandable documents for better readability
