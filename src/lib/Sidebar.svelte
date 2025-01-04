@@ -66,7 +66,10 @@
  <Databases />
  <div class="user">
   <div class="label">Logged in as</div>
-  {username}
+  <div class="name">{username}</div>
+  <button class="logout" onclick={() => window.location.href = "/api/v1/logout"}>
+   <img src="/assets/icons/logout.svg" alt="logout" class="icon">
+  </button>
  </div>
  <button aria-label="resize" class="resize-bar" onpointerdown={enableResize}></button>
 </nav>
@@ -107,6 +110,7 @@
  }
 
  div.user {
+  position: relative;
   margin-top: auto;
   padding: 1em .8em;
   width: 100%;
@@ -118,5 +122,34 @@
  div.user div.label {
   font-size: .8em;
   opacity: .6;
+ }
+
+ div.user div.name {
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+ }
+
+ div.user button.logout {
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  padding: .3em;
+  opacity: .7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+ }
+
+ div.user button.logout img {
+  width: 1.2em;
+ }
+
+ div.user button.logout:hover {
+  background: rgba(255, 255, 255, .05);
+  opacity: .9;
  }
 </style>
