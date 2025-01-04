@@ -23,7 +23,6 @@ export async function POST(event) {
  if (!ok) return error(429, "This request exceeds your daily limit");
  let db = await connect(databases.findIndex(db => db.db === databaseName));
  try {
-  console.log(query, projection, limit);
   let result = await db.connection.collection(collection).find(query, {
    projection,
   }).limit(limit);
