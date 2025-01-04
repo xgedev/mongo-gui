@@ -11,6 +11,7 @@ With user access management.
 - Expandable documents for better readability
 - Run queries on collections including projection and limit fields
 - Update queried documents by clicking on their values
+- Replica set support
 - User access management
   - Add unlimited web app users (without creating database users)
   - Allow users which databases to access (only read or read/write)
