@@ -27,11 +27,6 @@
   });
   loggingIn = false;
   if (response.ok) {
-   let data = await response.json();
-   if (data.token !== true) {
-    // token is actually given and not just a boolean
-    localStorage.setItem("token", data.token);
-   }
    goto($page.url.searchParams.get("redirect") || "/");
   } else {
    if (username) {

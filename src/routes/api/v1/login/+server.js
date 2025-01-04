@@ -9,7 +9,7 @@ export async function POST(event) {
  if (event.locals.user) return json({ token: true })
  let { username, password } = await event.request.json();
  let user = users.find(user => user.username === username);
- let passwordMatch = user && await bcrypt.compare(password, user.password);
+ let passwordMatch = user && await bcrypt.compare(password || "0", user.password);
  if (!passwordMatch) {
   return error(401, "Invalid username or password");
  }
