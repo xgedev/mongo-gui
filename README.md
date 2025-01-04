@@ -22,6 +22,8 @@ With user access management.
 - Support for deleting documents
 - Support for running queries like in shell (including aggregation)
 - Support for other value types (apart from String, Int, Float, Boolean, Array and Object)
+- Webhooks for each request a user makes
+- Increasing user limits for one day upon request
 
 ### Installation
 0. Install bun from [bun.sh](https://bun.sh)
