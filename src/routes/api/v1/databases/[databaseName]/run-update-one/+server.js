@@ -10,7 +10,7 @@ export async function PATCH(event) {
  if (!event.locals.user) return error(401, "Unauthorized");
  let databaseName = event.params.databaseName;
  let userDBConfig = getUserDBConfig(event.locals.user.username, databaseName);
- if (!userDBConfig) return error(401, "Unauthorized");
+ if (!userDBConfig?.write) return error(401, "Unauthorized");
  let { collection, _id, query } = await event.request.json();
  let hasCollectionAccess = getUserCollectionAccess(userDBConfig, collection);
  if (!hasCollectionAccess) return error(401, "Unauthorized");

@@ -31,7 +31,7 @@ export function getUserCollectionAccess(userDBConfig, collection) {
 export function consumeLimit({ type = "read", username, databaseName, count = 1 }) {
  let user = users.find(user => user.username === username);
  let userDatabaseLimits = user.databases.find(db => db.database === databaseName)?.limits;
- if (!userDatabaseLimits) return false;
+ if (!userDatabaseLimits?.[type]) return true;
  let userDBLimitCache = getUserDBLimitCache(); // { read: [timestamps], write: [timestamps] }
  let now = Date.now();
  userDBLimitCache[type] = userDBLimitCache[type].filter(timestamp => (now-timestamp) < 24*60*60*1000);

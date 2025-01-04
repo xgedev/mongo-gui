@@ -61,13 +61,16 @@
  async function handleCollectionClick(databaseName, collectionName) {
   let foundOpen = $openCollections.find(col => col.database === databaseName && col.collection === collectionName);
   if (!foundOpen) {
+   let database = $databases.find(db => db.database === databaseName);
+   let cachedCollectionData = JSON.parse(localStorage.getItem(`${databaseName}.${collectionName}`));
    foundOpen = {
     id: Date.now() + Math.random()*1000000,
     database: databaseName,
     collection: collectionName,
-    query: "{}",
-    projection: "{}",
-    limit: 1,
+    query: cachedCollectionData?.query || "{}",
+    projection: cachedCollectionData?.projection || "{}",
+    limit: cachedCollectionData?.limit || database.limits?.read ? 1 : 100,
+    instantQuery: !database.limits?.read, // run query on initial open when no limits are set
     documents: [],
    };
    $openCollections = [...$openCollections, foundOpen];

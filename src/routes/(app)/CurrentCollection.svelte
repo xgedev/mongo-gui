@@ -2,10 +2,21 @@
  import { sidebarWidth, databases, openCollections, selectedOpenCollectionId, queryRunning } from "$lib/stores";
  import DocumentKeyRepresentation from "./DocumentKeyRepresentation.svelte";
  import CollectionTabs from "./CollectionTabs.svelte";
+ import { onMount } from "svelte";
 
  let { collection, tabsElemHeight } = $props();
 
  let expandedDocumentIndexes = $state([]);
+ let noResults = $state(false);
+
+ $effect(() => {
+  if ($selectedOpenCollectionId === collection.id) {
+   if (collection.instantQuery) {
+    collection.instantQuery = false;
+    runQuery();
+   }
+  }
+ })
 
  function handleNewQuery(query) {
   $openCollections = $openCollections.map(col => {
@@ -17,6 +28,7 @@
    }
    return col;
   });
+  writeKeyToLocalStorage("query", query);
  }
 
  function handleNewProjection(projection) {
@@ -29,6 +41,7 @@
    }
    return col;
   });
+  writeKeyToLocalStorage("projection", projection);
  }
 
  function handleNewLimit(limit) {
@@ -41,6 +54,15 @@
    }
    return col;
   });
+  writeKeyToLocalStorage("limit", parseInt(limit));
+ }
+
+ function writeKeyToLocalStorage(key, value) {
+  let before = JSON.parse(localStorage.getItem(`${collection.database}.${collection.collection}`) || "{}");
+  localStorage.setItem(`${collection.database}.${collection.collection}`, JSON.stringify({
+   ...before,
+   [key]: value,
+  }));
  }
 
  async function runQuery() {
@@ -61,7 +83,7 @@
      limit: currentCollection.limit,
     }),
    });
-   $queryRunning = false;
+   noResults = true;
    if (response.ok) {
     let documents = await response.json();
     $openCollections = $openCollections.map(col => {
@@ -73,8 +95,10 @@
      }
      return col;
     });
+    $queryRunning = false;
    } else {
     let err = await response.text();
+    $queryRunning = false;
     return alert(`Failed to run query: ${err}`);
    }
   } catch (err) {
@@ -131,6 +155,10 @@
       {/each}
      {/if}
     </div>
+   {:else}
+    {#if noResults}
+     <div class="sub" style="opacity: .8; font-size: .8em;">No results</div>
+    {/if}
    {/each}
   </div>
  {/if}

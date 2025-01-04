@@ -30,8 +30,10 @@
    let databaseList = await response.json();
    $databases = [
     ...$databases,
-    ...databaseList.filter(dbName => !$databases.some(db => db.database === dbName)).map(dbName => ({
-     database: dbName,
+    ...databaseList.filter(newDB => !$databases.some(db => db.database === newDB.database)).map(newDB => ({
+     database: newDB.database,
+     write: newDB.write,
+     limits: newDB.limits,
      connected: false,
     }))
    ];
