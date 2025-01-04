@@ -15,6 +15,7 @@ With user access management.
 - Remembers last used query per collection
 - Installable as a PWA
 - Discord webhook support for logging queries by users
+- Custom branding name
 - User access management
   - Add unlimited web app users (without creating database users)
   - Allow users which databases to access (only read or read/write)

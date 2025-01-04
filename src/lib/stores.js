@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 
+export let brandingName = writable("MongoGUI");
 export let sidebarWidth = writable(250);
 export let showModal = writable(false);
 export let modalValue = writable("");

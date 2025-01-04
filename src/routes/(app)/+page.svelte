@@ -12,10 +12,6 @@
  });
 </script>
 
-<svelte:head>
-	<title>MongoGUI</title>
-</svelte:head>
-
 <div class="wrapper" style="--sidebar-width: {$sidebarWidth}px;">
  <CollectionTabs bind:tabsElemHeight />
  {#if $openCollections.find(col => col.id === $selectedOpenCollectionId)}

@@ -1,6 +1,10 @@
+<script>
+ import { brandingName } from "$lib/stores";
+</script>
+
 <div class="logo">
  <img src="/assets/branding/icon.svg" alt="icon">
- <div class="title">MongoGUI</div>
+ <div class="title">{$brandingName}</div>
 </div>
 
 <style>
