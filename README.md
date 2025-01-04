@@ -32,6 +32,7 @@ With user access management.
 3. Build the app: `bun run build`
 4. Create a `.env` file fill it with your data
 5. Run the app: `HOST=localhost PORT=3000 node build`
+6. Default user credentials: `admin` / `admin`
 
 ### Update on new release
 1. Pull the latest changes: `git pull`
