@@ -12,6 +12,8 @@ With user access management.
 - Run queries on collections including projection and limit fields
 - Update queried documents by clicking on their values
 - Replica set support
+- Remembers last used query per collection
+- Installable as a PWA
 - User access management
   - Add unlimited web app users (without creating database users)
   - Allow users which databases to access (only read or read/write)
@@ -32,8 +34,8 @@ With user access management.
 0. Install bun from [bun.sh](https://bun.sh)
 1. Clone repository: `git clone https://github.com/xgedev/mongo-gui`
 2. Install dependencies: `bun install` and `npm install bcrypt`
-3. Build the app: `bun run build`
-4. Create a `.env` file fill it with your data
+3. Create a `.env` file fill it with your data
+4. Build the app: `bun run build` (after setting .env file)
 5. Run the app: `HOST=localhost PORT=3000 node build`
 6. Default user credentials: `admin` / `admin`
 
