@@ -22,8 +22,7 @@
    },
    body: JSON.stringify({
     username,
-    password,
-    token: username ? null : localStorage.getItem("token")
+    password
    })
   });
   loggingIn = false;
