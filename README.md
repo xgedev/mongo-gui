@@ -4,7 +4,6 @@ A simple web app to browse through and query MongoDB databases.
 
 With user access management.
 
-
 ### Features
 - Browse through databases, collections, and documents
 - Expandable documents for better readability
@@ -16,6 +15,7 @@ With user access management.
   - Decide which collections to show/hide from each user
   - Limit users amount of read/write queries per 24 hours per database
 
+![Preview](https://img.sapph.xyz/c10df53a-9aab-4367-010b-bf8a62786b00)
 
 ### Missing / TODO
 - Support for inserting new documents
