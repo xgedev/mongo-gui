@@ -31,7 +31,7 @@ With user access management.
 ### Installation
 0. Install bun from [bun.sh](https://bun.sh)
 1. Clone repository: `git clone https://github.com/xgedev/mongo-gui`
-2. Install dependencies: `bun install`
+2. Install dependencies: `bun install` and `npm install bcrypt`
 3. Build the app: `bun run build`
 4. Create a `.env` file fill it with your data
 5. Run the app: `HOST=localhost PORT=3000 node build`
