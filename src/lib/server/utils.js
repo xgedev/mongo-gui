@@ -54,3 +54,34 @@ export function consumeLimit({ type = "read", username, databaseName, count = 1 
   return userCache[databaseName];
  }
 }
+
+export function handleWebhookMessages({ type, username, databaseName, collection, query }) {
+ let user = users.find(user => user.username === username);
+ if (!user.actionWebhooks?.length) return;
+ user.actionWebhooks.forEach(webhook => {
+  if (!webhook.actions.includes(type)) return;
+  if (!webhook.databases.includes(databaseName)) return;
+  let discordURL = webhook.discordURL;
+  fetch(discordURL, {
+   method: "POST",
+   headers: {
+    "Content-Type": "application/json"
+   },
+   body: JSON.stringify({
+    embeds: [{
+     description: `${collection}:\n\`\`\`json\n${JSON.stringify(query, null, 2)}\n\`\`\``,
+     footer: {
+      text: `${username} • ${databaseName}`
+     },
+     timestamp: new Date().toISOString(),
+    }]
+   })
+  }).then(async response => {
+   if (!response.ok) {
+    console.log(`Webhook error: ${response.status} ${await response.text()}`)
+   }
+  }).catch(err => {
+   console.log(`Webhook error: ${err}`)
+  })
+ });
+}

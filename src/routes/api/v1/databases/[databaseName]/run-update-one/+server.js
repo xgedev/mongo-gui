@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit"
 import * as env from "$env/static/private";
 import { connect } from "$lib/server/db/mongo.js";
-import { getUserDBConfig, getUserCollectionAccess, consumeLimit } from "$lib/server/utils";
+import { getUserDBConfig, getUserCollectionAccess, consumeLimit, handleWebhookMessages } from "$lib/server/utils";
 
 let users = JSON.parse(env.USERS || "[]");
 let databases = JSON.parse(env.DATABASES || "[]");
@@ -24,6 +24,16 @@ export async function PATCH(event) {
  let db = await connect(databases.findIndex(db => db.db === databaseName));
  try {
   let result = await db.connection.collection(collection).updateOne({ _id }, query);
+  handleWebhookMessages({
+   type: "write",
+   username: event.locals.user.username,
+   databaseName,
+   collection,
+   query: {
+    _id,
+    ...query,
+   }
+  });
   return json(result);
  } catch (err) {
   return error(500, err.message);

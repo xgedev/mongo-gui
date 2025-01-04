@@ -14,6 +14,7 @@ With user access management.
 - Replica set support
 - Remembers last used query per collection
 - Installable as a PWA
+- Discord webhook support for logging queries by users
 - User access management
   - Add unlimited web app users (without creating database users)
   - Allow users which databases to access (only read or read/write)
@@ -27,7 +28,6 @@ With user access management.
 - Support for deleting documents
 - Support for running queries like in shell (including aggregation)
 - Support for other value types (apart from String, Int, Float, Boolean, Array and Object)
-- Webhooks for each request a user makes
 - Increasing user limits for one day upon request
 
 ### Installation
