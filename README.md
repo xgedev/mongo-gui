@@ -25,8 +25,6 @@ With user access management.
 ![Preview](https://img.sapph.xyz/c10df53a-9aab-4367-010b-bf8a62786b00)
 
 ### Missing / TODO
-- Support for inserting new documents
-- Support for deleting documents
 - Support for running queries like in shell (including aggregation)
 - Support for other value types (apart from String, Int, Float, Boolean, Array and Object)
 - Increasing user limits for one day upon request
