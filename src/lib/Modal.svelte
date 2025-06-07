@@ -11,26 +11,38 @@
   return value;
  }
 
- function parseValue(value) {
-  if (value === "true") return true;
-  if (value === "false") return false;
-  if (value === "null") return null;
-  if (!isNaN(parseInt(value))) {
-   if (value.includes(".")) {
-    return parseFloat(value);
-   }
-   return parseInt(value);
-  }
-  if (value.startsWith('"') && value.endsWith('"')) {
-   return value.slice(1, -1);
-  }
+function parseLooseJSON(value) {
+ try {
+  return JSON.parse(value);
+ } catch {
   try {
-   return JSON.parse(value);
-  } catch (err) {
-   alert("Error when parsing JSON: " + err)
-   return value;
+   return JSON.parse(value.replace(/([,{]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":'));
+  } catch {
+   try {
+    return new Function('return (' + value + ')')();
+   } catch (err) {
+    alert('Error when parsing JSON: ' + err);
+    return value;
+   }
   }
  }
+}
+
+function parseValue(value) {
+ if (value === "true") return true;
+ if (value === "false") return false;
+ if (value === "null") return null;
+ if (!isNaN(parseInt(value))) {
+  if (value.includes(".")) {
+   return parseFloat(value);
+  }
+  return parseInt(value);
+ }
+ if (value.startsWith('"') && value.endsWith('"')) {
+  return value.slice(1, -1);
+ }
+ return parseLooseJSON(value);
+}
 
  function handleCancel() {
   closeModal(0);
@@ -56,7 +68,7 @@
 
 {#if $modalData}
  <div class="modal">
-  <div class="title">Edit value</div>
+  <div class="title">{$modalData.title || 'Edit value'}</div>
   <textarea value={stringifyValue($modalData.value)} oninput={(e) => newValue = e.target.value}></textarea>
   <div class="actions">
    <button class="default cancel" onclick={handleCancel}>Cancel</button>
