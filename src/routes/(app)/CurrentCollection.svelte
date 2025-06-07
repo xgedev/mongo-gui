@@ -6,8 +6,10 @@
 
  let { collection, tabsElemHeight } = $props();
 
- let expandedDocumentIndexes = $state([]);
- let noResults = $state(false);
+let expandedDocumentIndexes = $state([]);
+let selectedDocumentIndexes = $state([]);
+let lastSelectedIndex = $state(null);
+let noResults = $state(false);
 
  $effect(() => {
   if ($selectedOpenCollectionId === collection.id) {
@@ -66,9 +68,11 @@
  }
 
  async function runQuery() {
-  if ($queryRunning) return;
-  $queryRunning = true;
-  expandedDocumentIndexes = [];
+ if ($queryRunning) return;
+ $queryRunning = true;
+ expandedDocumentIndexes = [];
+ selectedDocumentIndexes = [];
+ lastSelectedIndex = null;
   let currentCollection = $openCollections.find(col => col.id === $selectedOpenCollectionId);
   try {
    let response = await fetch(`/api/v1/databases/${currentCollection.database}/run-query`, {
@@ -107,9 +111,70 @@
   }
  }
 
- function handleExpandDocument(index, key) {
-  expandedDocumentIndexes = expandedDocumentIndexes.includes(index) ? expandedDocumentIndexes.filter(i => i !== index) : [...expandedDocumentIndexes, index];
+function handleExpandDocument(index, key) {
+ expandedDocumentIndexes = expandedDocumentIndexes.includes(index) ? expandedDocumentIndexes.filter(i => i !== index) : [...expandedDocumentIndexes, index];
+}
+
+function handleDocumentClick(event, index) {
+ if (event.detail === 2) {
+  handleExpandDocument(index);
+  return;
  }
+ if (event.ctrlKey || event.metaKey) {
+  if (selectedDocumentIndexes.includes(index)) {
+   selectedDocumentIndexes = selectedDocumentIndexes.filter(i => i !== index);
+  } else {
+   selectedDocumentIndexes = [...selectedDocumentIndexes, index];
+  }
+  lastSelectedIndex = index;
+ } else if (event.shiftKey && lastSelectedIndex !== null) {
+  let start = Math.min(lastSelectedIndex, index);
+  let end = Math.max(lastSelectedIndex, index);
+  let range = [];
+  for (let i = start; i <= end; i++) range.push(i);
+  selectedDocumentIndexes = Array.from(new Set([...selectedDocumentIndexes, ...range]));
+ } else {
+  selectedDocumentIndexes = [index];
+  lastSelectedIndex = index;
+ }
+}
+
+async function deleteSelected() {
+ if (!selectedDocumentIndexes.length) return;
+ if (!confirm(`Delete ${selectedDocumentIndexes.length} document(s)?`)) return;
+ let currentCollection = $openCollections.find(col => col.id === $selectedOpenCollectionId);
+ try {
+  let response = await fetch(`/api/v1/databases/${currentCollection.database}/run-delete-many`, {
+   method: "DELETE",
+   headers: {
+    "Content-Type": "application/json",
+   },
+   body: JSON.stringify({
+    collection: currentCollection.collection,
+    ids: selectedDocumentIndexes.map(i => currentCollection.documents[i]._id),
+   }),
+  });
+  if (response.ok) {
+   $openCollections = $openCollections.map(col => {
+    if (col.id === $selectedOpenCollectionId) {
+     return {
+      ...col,
+      documents: col.documents.filter((_, idx) => !selectedDocumentIndexes.includes(idx)),
+     };
+    }
+    return col;
+   });
+   expandedDocumentIndexes = expandedDocumentIndexes.filter(i => !selectedDocumentIndexes.includes(i));
+   selectedDocumentIndexes = [];
+   lastSelectedIndex = null;
+  } else {
+   let err = await response.text();
+   alert(`Failed to delete documents: ${err}`);
+  }
+ } catch (err) {
+  alert(`Failed to delete documents: ${err}`);
+ }
+}
 </script>
 
 <div class="collection-container" style="--tabs-elem-height: {tabsElemHeight}px;">
@@ -137,14 +202,17 @@
     Run query
    {/if}
   </button>
+  <button class="delete default" onclick={deleteSelected} disabled={selectedDocumentIndexes.length === 0}>
+   Delete selected
+  </button>
  </div>
  {#if !$queryRunning}
   <div class="documents">
    {#each collection.documents as document, i}
     {@const isOpen = expandedDocumentIndexes.includes(i)}
-    <div class="document">
+    <div class="document {selectedDocumentIndexes.includes(i) ? 'selected' : ''}" onclick={(e) => handleDocumentClick(e, i)}>
      <div class="header">
-      <button class="expand {isOpen ? "open" : ""}" onclick={() => handleExpandDocument(i)}>
+      <button class="expand {isOpen ? 'open' : ''}" onclick={(e) => { e.stopPropagation(); handleExpandDocument(i); }}>
        <img src="/assets/icons/play.svg" alt="expand" class="expand">
       </button>
       <div class="title">[{i}] | {document._id}</div>
@@ -223,8 +291,16 @@
   padding: .5em .8em;
  }
 
- div.collection-container button.run-query img.icon {
-  width: .8em;
+div.collection-container button.run-query img.icon {
+ width: .8em;
+}
+
+div.collection-container button.delete {
+ background: rgba(255, 50, 50, .4);
+ }
+
+div.collection-container div.document.selected {
+ background: color-mix(in srgb, red 30%, rgba(255, 255, 255, .05));
  }
 
  div.collection-container div.documents {
