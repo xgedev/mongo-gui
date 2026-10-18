@@ -3,6 +3,7 @@
  import { goto } from "$app/navigation";
  import { page } from "$app/stores";
  import { onMount } from "svelte";
+ import { getSafeRedirect } from "$lib/redirect";
 
  let username = $state("");
  let password = $state("");
@@ -27,7 +28,7 @@
   });
   loggingIn = false;
   if (response.ok) {
-   goto($page.url.searchParams.get("redirect") || "/");
+   goto(getSafeRedirect($page.url.searchParams.get("redirect"), $page.url.origin));
   } else {
    if (username) {
     alert("Invalid username or password");
