@@ -2,7 +2,13 @@
  import { modalData, closeModal } from "$lib/modal.js";
 
  let loading = $state(false);
- let newValue = $state(stringifyValue($modalData.value));
+ let newValue = $state('');
+
+ $effect(() => {
+  if ($modalData) {
+   newValue = stringifyValue($modalData.value);
+  }
+ });
 
  function stringifyValue(value) {
   if (typeof value === "object" || typeof value === "string") {
@@ -69,7 +75,7 @@ function parseValue(value) {
 {#if $modalData}
  <div class="modal">
   <div class="title">{$modalData.title || 'Edit value'}</div>
-  <textarea value={stringifyValue($modalData.value)} oninput={(e) => newValue = e.target.value}></textarea>
+  <textarea bind:value={newValue}></textarea>
   <div class="actions">
    <button class="default cancel" onclick={handleCancel}>Cancel</button>
    <button class="default confirm" onclick={handleConfirm}>
